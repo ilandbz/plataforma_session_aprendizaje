@@ -41,6 +41,13 @@ class MenuSeeder extends Seeder
                 'orden' => 1,
             ],         
             [
+                'nombre' => 'Plantilla Unidad',
+                'slug' => 'plantilla-unidad-aprendizaje',
+                'icono' => 'fa fa-book',
+                'grupo_id'  => GrupoMenu::where('titulo', 'Academico')->value('id'),
+                'orden' => 1,
+            ],         
+            [
                 'nombre' => 'Areas',
                 'slug' => 'areas-aprendizaje',
                 'icono' => 'fa fa-book',

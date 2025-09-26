@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             GrupoMenuSeeder::class,
             MenuSeeder::class,
             UnidadAprendizajeSeeder::class,
+            RegionSeeder::class,
         ]);
     }
 }

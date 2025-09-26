@@ -4,7 +4,9 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\GrupoMenuController;
 use App\Http\Controllers\InstitucionEducativaController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PlantillaUnidadController;
 use App\Http\Controllers\ProfesorController;
+use App\Http\Controllers\RegionController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TipoUnidadAprendizajeController;
 use App\Http\Controllers\UnidadAprendizajeController;
@@ -114,4 +116,19 @@ Route::group(['prefix' => 'unidad-aprendizaje', 'middleware' => 'auth'], functio
     Route::post('guardar', [UnidadAprendizajeController::class, 'store']);
     Route::get('listar', [UnidadAprendizajeController::class, 'listar']);
     Route::post('generar-pdf', [UnidadAprendizajeController::class, 'generarPdf']);
+});
+
+Route::group(['prefix' => 'plantilla-unidad-aprendizaje', 'middleware' => 'auth'], function () {
+    Route::get('todos', [PlantillaUnidadController::class, 'all']);
+    Route::get('mostrar', [PlantillaUnidadController::class, 'show']);
+    Route::post('actualizar', [PlantillaUnidadController::class, 'update']);
+    Route::post('eliminar', [PlantillaUnidadController::class, 'destroy']);
+    Route::post('guardar', [PlantillaUnidadController::class, 'store']);
+    Route::get('listar', [PlantillaUnidadController::class, 'listar']);
+    Route::post('generar-pdf', [PlantillaUnidadController::class, 'generarPdf']);
+});
+
+
+Route::group(['prefix' => 'region', 'middleware' => 'auth'], function () {
+    Route::get('todos', [RegionController::class, 'all']);
 });
