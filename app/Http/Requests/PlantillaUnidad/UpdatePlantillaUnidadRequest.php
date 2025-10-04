@@ -29,7 +29,7 @@ class UpdatePlantillaUnidadRequest extends FormRequest
             'tiene_educacion_fisica'    => 'required',
             'tipo_id'                   => 'required',
             'nombre_unidad'             => 'required|string',
-            'numero_unidad'             => 'required|number',
+            'numero_unidad'             => 'required',
             'situacion_significativa'   => 'nullable|string',
         ];
     }

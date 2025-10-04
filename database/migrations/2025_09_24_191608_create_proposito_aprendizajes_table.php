@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('proposito_aprendizajes', function (Blueprint $table) {
             $table->id();
+            $table->text('descripcion'); //Hoy vamos a reconocer en que afectan  los fenómenos naturales a las personas de la comunidad
             $table->foreignId('plantilla_unidad_id')->constrained('plantilla_unidads')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('area_id')->constrained('areas')->onDelete('cascade')->onUpdate('cascade');
-            $table->text('competencia');
-            $table->text('capacidades');
+            $table->text('competencia_capacidades');
             $table->text('estandares');
-            $table->text('desempeños');
-            $table->text('criterios_evaluacion');
-            $table->text('actividad');
             $table->text('evidencia');
             $table->text('instrumento_evaluacion');
             $table->timestamps();

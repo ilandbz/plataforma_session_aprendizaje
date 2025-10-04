@@ -2,7 +2,10 @@
 import { ref, onMounted, toRefs } from 'vue'
 import useHelper from '@/Helpers'
 import usePlantillaUnidad from '@/Composables/PlantillaUnidad.js'
+import usePropositoAprendizaje from '@/Composables/PropositoAprendizaje.js'
 import UnidadAprendizajeForm from './Form.vue'
+import PropositoForm from './PropositoForm.vue'
+import ActividadForm from './ActividadForm.vue'
 const { openModal, Toast, Swal } = useHelper()
 
 const props = defineProps({
@@ -10,10 +13,15 @@ const props = defineProps({
 });
 
 const { usuario } = toRefs(props);
+
 const {
   registros, errors, registro, respuesta,
   obtenerRegistros, obtenerRegistro, eliminarRegistro
 } = usePlantillaUnidad()
+
+const {
+  listaPropositos, propositos
+} = usePropositoAprendizaje()
 
 const dato = ref({
   page: '',
@@ -26,12 +34,108 @@ const form = ref({
   region_id: 1,
   grado: '',
   tiene_educacion_fisica: false,
-  tipo_id: '',
+  tipo_id: 1,
   nombre_unidad: '',
   numero_unidad: 1,
   situacion_significativa: '',
   errors: []
 })
+
+const formProposito = ref({
+  id: '',
+  nombre_unidad: '',
+  nro_unidad: '',
+  descripcion: '',
+  plantilla_unidad_id: '',
+  area_id: '',
+  grado: '',
+  region_id: '',
+  region: '',
+  competencia_capacidades: '',
+  capacidades: '',
+  estandares: '',
+  evidencia: '',
+  instrumento_evaluacion: '',
+  desempeños: [],
+  criterio_evaluacions: [],
+  actividades: [],
+  tiene_educacion_fisica: false,
+  errors: []
+})
+
+const formActividad = ref({
+  id: '',
+  plantilla_unidad_id: '',
+  orden: 1,
+  proposito_aprendizaje_id : '',
+  desempeño_id : '',
+  criterio_evaluacion_id : '',
+  titulo : '',
+  enfoque_transversal : '',
+  actitud_observable : '',
+  competencia_transversal : '',
+  desempeños : '',
+  que_se_debe_hacer : '',
+  recursos_materiales : '',
+  inicio_duracion : 15,
+  inicio_actividad : '',
+  desarrollo_duracion : 70,
+  desarrollo_actividad : '',
+  cierre_duracion : 5,
+  cierre_actividad : '',
+  errors: []
+})
+
+const limpiarActividad = () => {
+  formActividad.value = {
+    id: '',
+    orden: 1,
+    plantilla_unidad_id: '',
+    proposito_aprendizaje_id : '',
+    desempeño_id : '',
+    criterio_evaluacion_id : '',
+    titulo : '',
+    enfoque_transversal : '',
+    actitud_observable : '',
+    competencia_transversal : '',
+    desempeños : '',
+    que_se_debe_hacer : '',
+    recursos_materiales : '',
+    inicio_duracion : 15,
+    inicio_actividad : '',
+    desarrollo_duracion : 70,
+    desarrollo_actividad : '',
+    cierre_duracion : 5,
+    cierre_actividad : '',
+    errors: []
+  }
+
+}
+
+const limpiarProposito = () => {
+  formProposito.value = {
+    id: '',
+    nombre_unidad: '',
+    nro_unidad: '',
+    descripcion: '',
+    plantilla_unidad_id: '',
+    area_id: '',
+    grado: '',
+    region_id: '',
+    region: '',
+    competencia_capacidades: '',
+    capacidades: '',
+    estandares: '',
+    evidencia: '',
+    instrumento_evaluacion: '',
+    desempeños: [],
+    criterio_evaluacions: [],
+    actividades: [],
+    tiene_educacion_fisica: false,
+    errors: []
+  }
+
+}
 
 const limpiar = () => {
   form.value = {
@@ -39,7 +143,7 @@ const limpiar = () => {
     region_id: 1,
     grado: '',
     tiene_educacion_fisica: false,
-    tipo_id: '',
+    tipo_id: 1,
     nombre_unidad: '',
     numero_unidad: 1,
     situacion_significativa: '',
@@ -53,10 +157,26 @@ const obtenerDatos = async (id) => {
   if (registro.value) {
     form.value.id                       = registro.value.id
     form.value.region_id                = registro.value.region_id ?? ''
+    formProposito.value.region_id       = registro.value.region_id ?? ''
+    formProposito.value.region          = registro.value.region.nombre ?? ''
+    formProposito.value.nombre_unidad   = registro.value.nombre_unidad
+    formProposito.value.grado           = registro.value.grado
+    formProposito.value.region_id       = registro.value.region_id
+    formProposito.value.nro_unidad       = registro.value.numero_unidad
+    formProposito.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica==1?true:false
     form.value.grado                    = registro.value.grado ?? ''
-    form.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica ?? ''
+    form.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica==1?true:false
     form.value.tipo_id                  = registro.value.tipo_id ?? ''
+    form.value.nombre_unidad            = registro.value.nombre_unidad ?? ''
+    form.value.numero_unidad            = registro.value.numero_unidad ?? ''
+    form.value.situacion_significativa  = registro.value.situacion_significativa ?? ''
+    await listaPropositos(id)
   }
+  
+}
+
+const obtenerPropositos = async(id)=>{
+  await listaPropositos(id)
 }
 
 const editar = (id) => {
@@ -73,11 +193,25 @@ const nuevo = () => {
   document.getElementById('modalUnidadAprendizajeLabel').innerHTML = 'Nueva unidad de aprendizaje'
   openModal('#modalUnidadAprendizaje')
 }
-const archivos=(id)=>{
-  limpiarDatosImpresiones();
-  formImpresion.value.id = id;
-  openModal('#modalimpresiones')
-  document.getElementById("modalimpresionesLabel").innerHTML = 'Actividades de aprendizaje';        
+const refrescarActividades=async()=>{
+  limpiarActividad()
+  let id = form.value.id
+  formProposito.value.plantilla_unidad_id = id;
+  await obtenerDatos(id)
+}
+const actividades=async(id)=>{
+  limpiarActividad()
+  formActividad.value.plantilla_unidad_id = id;
+  await obtenerDatos(id)
+  openModal('#modalActividad')
+  document.getElementById("modalActividadLabel").innerHTML = 'Actividades de la unidad de aprendizaje : '+formProposito.value.nombre_unidad+' N° '+formProposito.value.nro_unidad;        
+}
+const verPropositos=async(id)=>{
+  limpiarProposito()
+  formProposito.value.plantilla_unidad_id = id;
+  await obtenerDatos(id)
+  openModal('#modalProposito')
+  document.getElementById("modalPropositoLabel").innerHTML = 'Propositos de la unidad de aprendizaje';        
 }
 const listarRegistrosPlantillas = async (page = 1) => {
   dato.value.page = page
@@ -130,17 +264,22 @@ const pagesNumber = () => {
   return pagesArray
 }
 
-// BUSCAR / PAGINACIÓN UI
 const buscar = () => listarRegistrosPlantillas()
 const cambiarPaginacion = () => listarRegistrosPlantillas()
 const cambiarPagina = (pagina) => listarRegistrosPlantillas(pagina)
 
-// CARGA
 onMounted(() => {
   listarRegistrosPlantillas()
 })
 </script>
-
+<style scoped>
+.truncate-1{
+  max-width: 380px;      /* ajusta a tu diseño */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
 <template>
   <div class="app-content">
     <div class="container-fluid">
@@ -241,12 +380,12 @@ onMounted(() => {
                     <tr>
                       <th>#</th>
                       <th>N°</th>
-                      <th>Nombre</th>
-                      <th>Profesor</th>
+                      <th>Titulo</th>
+                      <th>Region</th>
+                      <th>Tipo</th>
                       <th>Grado</th>
-                      <th>Sección</th>
-                      <th>F. Inicio</th>
-                      <th>F. Fin</th>
+                      <th title="Situacion Significativa">Situacion</th>
+                      <th>Educacion Fisica</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -260,23 +399,31 @@ onMounted(() => {
 
                     <tr v-else v-for="(ua, index) in registros.data" :key="ua.id">
                       <td>{{ index + registros.from }}</td>
-                      <td class="text-nowrap">{{ ua.numero_unidad }}</td>
+                      <td>{{ ua.numero_unidad }}</td>
                       <td>{{ ua.nombre_unidad }}</td>
-                      <td>{{ ua.profesor }}</td>
+                      <td>{{ ua.region.nombre }}</td>
+                      <td>{{ ua.tipo.nombre }}</td>
                       <td>{{ ua.grado }}</td>
-                      <td>{{ ua.seccion }}</td>
-                      <td class="text-nowrap">{{ ua.fecha_inicio }}</td>
-                      <td class="text-nowrap">{{ ua.fecha_fin }}</td>
+                      <td class="truncate-1" :title="ua.situacion_significativa">{{ ua.situacion_significativa }}</td>
                       <td>
-                        <button class="btn btn-warning btn-xs" title="Editar" @click.prevent="editar(ua.id)">
-                          <i class="fas fa-edit"></i>
-                       </button>&nbsp;
-                        <button class="btn btn-danger btn-xs" title="Eliminar" @click.prevent="eliminar(ua.id)">
-                          <i class="fas fa-trash"></i>
-                        </button>&nbsp;
-                        <button class="btn btn-success btn-sm btn-custom" title="Archivos" @click.prevent="archivos(ua.id)">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </button>
+                        <span v-if="ua.tiene_educacion_fisica" class="badge bg-success">Sí</span>
+                        <span v-else class="badge bg-danger">No</span>
+                      </td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-warning btn-xs" title="Editar" @click.prevent="editar(ua.id)">
+                            <i class="fas fa-edit"></i>
+                         </button>
+                          <button class="btn btn-danger btn-xs" title="Eliminar" @click.prevent="eliminar(ua.id)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                          <button class="btn btn-info btn-xs" title="Propositos" @click.prevent="verPropositos(ua.id)">
+                            <i class="fas fa-flag-checkered"></i>
+                          </button>
+                          <button v-if="ua.propositos_count>0" class="btn btn-success btn-xs" title="Actividades" @click.prevent="actividades(ua.id)">
+                            <i class="fas fa-lightbulb"></i>
+                          </button>                        
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -340,5 +487,13 @@ onMounted(() => {
       @onListar="listarRegistrosPlantillas"
       :currentPage="registros.current_page"
     />
+    <PropositoForm :form="formProposito"
+    @onListar="listarRegistrosPlantillas"
+    @obtenerPropositos="obtenerPropositos"
+    :currentPage="registros.current_page"
+    :propositos="propositos"
+    />
+    <ActividadForm :form="formActividad"
+     :propositos="propositos" @limpiar="refrescarActividades" />
   </div>
 </template>

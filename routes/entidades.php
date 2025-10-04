@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\ActividadAprendizajeController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\GrupoMenuController;
 use App\Http\Controllers\InstitucionEducativaController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PlantillaUnidadController;
 use App\Http\Controllers\ProfesorController;
+use App\Http\Controllers\PropositoAprendizajeController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TipoUnidadAprendizajeController;
@@ -68,7 +70,14 @@ Route::group(['prefix' => 'profesor', 'middleware' => 'auth'], function () {
     Route::get('todos', [ProfesorController::class, 'todos']);
 });
 
-
+Route::group(['prefix' => 'proposito-aprendizaje', 'middleware' => 'auth'], function () {
+    Route::post('guardar', [PropositoAprendizajeController::class, 'store']);
+    Route::get('mostrar', [PropositoAprendizajeController::class, 'show']);
+    Route::post('actualizar', [PropositoAprendizajeController::class, 'update']);
+    Route::get('listar', [PropositoAprendizajeController::class, 'listar']);
+    Route::post('eliminar', [PropositoAprendizajeController::class, 'destroy']);
+    Route::get('todos', [PropositoAprendizajeController::class, 'all']);
+});
 
 Route::group(['prefix' => 'grupo-menu', 'middleware' => 'auth'], function () {
     Route::get('todos', [GrupoMenuController::class, 'todos']);
@@ -78,7 +87,6 @@ Route::group(['prefix' => 'grupo-menu', 'middleware' => 'auth'], function () {
     Route::post('guardar', [GrupoMenuController::class, 'store']);
     Route::get('listar', [GrupoMenuController::class, 'listar']);
 });
-
 
 Route::group(['prefix' => 'area', 'middleware' => 'auth'], function () {
     Route::get('todos', [AreaController::class, 'all']);
@@ -128,6 +136,16 @@ Route::group(['prefix' => 'plantilla-unidad-aprendizaje', 'middleware' => 'auth'
     Route::post('generar-pdf', [PlantillaUnidadController::class, 'generarPdf']);
 });
 
+
+Route::group(['prefix' => 'actividad-aprendizaje', 'middleware' => 'auth'], function () {
+    Route::get('todos', [ActividadAprendizajeController::class, 'all']);
+    Route::get('mostrar', [ActividadAprendizajeController::class, 'show']);
+    Route::post('actualizar', [ActividadAprendizajeController::class, 'update']);
+    Route::post('eliminar', [ActividadAprendizajeController::class, 'destroy']);
+    Route::post('guardar', [ActividadAprendizajeController::class, 'store']);
+    Route::get('listar', [ActividadAprendizajeController::class, 'listar']);
+    Route::post('generar-pdf', [ActividadAprendizajeController::class, 'generarPdf']);
+});
 
 Route::group(['prefix' => 'region', 'middleware' => 'auth'], function () {
     Route::get('todos', [RegionController::class, 'all']);

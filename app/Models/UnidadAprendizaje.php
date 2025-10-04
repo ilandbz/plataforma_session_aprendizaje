@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UnidadAprendizaje extends Model
 {
@@ -28,5 +29,7 @@ class UnidadAprendizaje extends Model
     {
         return $this->belongsTo(InstitucionEducativa::class, 'institucion_educativa_id');
     }
+
+
 
 }

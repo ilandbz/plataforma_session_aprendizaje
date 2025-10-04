@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\PlantillaUnidad;
+namespace App\Http\Requests\PropositoAprendizaje;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePlantillaUnidadRequest extends FormRequest
+class UpdatePropositoAprendizajeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +24,15 @@ class StorePlantillaUnidadRequest extends FormRequest
     public function rules()
     {
         return [
-            'region_id'                 => 'required',
-            'grado'                     => 'required',
-            'tiene_educacion_fisica'    => 'required',
-            'tipo_id'                   => 'required',
-            'nombre_unidad'             => 'required|string',
-            'numero_unidad'             => 'required',
-            'situacion_significativa'   => 'nullable|string',
+            'descripcion'                   => 'required',
+            'plantilla_unidad_id'           => 'required',
+            'area_id'                       => 'required',
+            'competencia_capacidades'       => 'required',
+            'estandares'                    => 'required',
+            'evidencia'                     => 'required',
+            'instrumento_evaluacion'        => 'required',
+            'desempeños'                    => 'required|array|min:1',
+            'criterio_evaluacions'          => 'required|array|min:1',
         ];
     }
 

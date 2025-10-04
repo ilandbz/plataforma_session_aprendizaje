@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('tipo_id')->constrained('tipo_unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
             $table->string('nombre_unidad');
             $table->integer('numero_unidad');
-            $table->integer('situacion_significativa');
+            $table->text('situacion_significativa');
             $table->timestamps();
         });
     }

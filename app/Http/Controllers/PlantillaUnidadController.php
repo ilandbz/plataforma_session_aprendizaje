@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PlantillaUnidadController extends Controller
 {
-public function store(StorePlantillaUnidadRequest $request)
+    public function store(StorePlantillaUnidadRequest $request)
     {
         $item = PlantillaUnidad::create([
             'region_id'              => $request->region_id,
@@ -30,7 +30,7 @@ public function store(StorePlantillaUnidadRequest $request)
 
     public function show(Request $request)
     {
-        $item = PlantillaUnidad::where('id', $request->id)->first();
+        $item = PlantillaUnidad::with('region')->where('id', $request->id)->first();
         return $item;
     }
 
@@ -75,9 +75,12 @@ public function store(StorePlantillaUnidadRequest $request)
         $buscar     = mb_strtoupper($request->buscar ?? '');
         $paginacion = $request->paginacion ?? 10;
 
-        // Búsqueda por "grado" (convierte a texto por si es numérico)
-        return PlantillaUnidad::whereRaw('UPPER(CAST(grado AS CHAR)) LIKE ?', ['%'.$buscar.'%'])
-            ->orderBy('grado')
-            ->paginate($paginacion);
+        return PlantillaUnidad::with([
+            'region', 'tipo'
+        ])
+        ->withCount('propositos')
+        ->whereRaw('UPPER(CAST(grado AS CHAR)) LIKE ?', ['%'.$buscar.'%'])
+        ->orderBy('grado')
+        ->paginate($paginacion);
     }
 }
