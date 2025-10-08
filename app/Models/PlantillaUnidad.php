@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class PlantillaUnidad extends Model
 {
@@ -27,5 +28,16 @@ class PlantillaUnidad extends Model
     public function propositos(): HasMany
     {
         return $this->hasMany(PropositoAprendizaje::class, 'plantilla_unidad_id');
+    }
+    public function actividades(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ActividadAprendizaje::class,
+            PropositoAprendizaje::class,
+            'plantilla_unidad_id',      
+            'proposito_aprendizaje_id', 
+            'id',                       
+            'id'                        
+        );
     }
 }

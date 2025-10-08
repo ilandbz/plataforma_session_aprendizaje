@@ -378,14 +378,15 @@ onMounted(() => {
                       </th>
                     </tr>
                     <tr>
-                      <th>#</th>
                       <th>N°</th>
                       <th>Titulo</th>
                       <th>Region</th>
                       <th>Tipo</th>
                       <th>Grado</th>
                       <th title="Situacion Significativa">Situacion</th>
-                      <th>Educacion Fisica</th>
+                      <th title="Educacion Física">Ed. Fisica</th>
+                      <th>Proposito</th>
+                      <th>Actividades</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -398,9 +399,8 @@ onMounted(() => {
                     </tr>
 
                     <tr v-else v-for="(ua, index) in registros.data" :key="ua.id">
-                      <td>{{ index + registros.from }}</td>
                       <td>{{ ua.numero_unidad }}</td>
-                      <td>{{ ua.nombre_unidad }}</td>
+                      <td class="truncate-1" :title="ua.nombre_unidad">{{ ua.nombre_unidad }}</td>
                       <td>{{ ua.region.nombre }}</td>
                       <td>{{ ua.tipo.nombre }}</td>
                       <td>{{ ua.grado }}</td>
@@ -408,6 +408,12 @@ onMounted(() => {
                       <td>
                         <span v-if="ua.tiene_educacion_fisica" class="badge bg-success">Sí</span>
                         <span v-else class="badge bg-danger">No</span>
+                      </td>
+                      <td>
+                        {{ ua.propositos_count }}
+                      </td>
+                      <td>
+                        {{ ua.actividades_count }}
                       </td>
                       <td>
                         <div class="btn-group">

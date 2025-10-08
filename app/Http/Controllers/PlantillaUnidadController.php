@@ -79,6 +79,7 @@ class PlantillaUnidadController extends Controller
             'region', 'tipo'
         ])
         ->withCount('propositos')
+        ->withCount('actividades')
         ->whereRaw('UPPER(CAST(grado AS CHAR)) LIKE ?', ['%'.$buscar.'%'])
         ->orderBy('grado')
         ->paginate($paginacion);
