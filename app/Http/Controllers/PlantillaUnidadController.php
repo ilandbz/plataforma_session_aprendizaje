@@ -11,6 +11,7 @@ class PlantillaUnidadController extends Controller
 {
     public function store(StorePlantillaUnidadRequest $request)
     {
+        return $request;
         $item = PlantillaUnidad::create([
             'region_id'              => $request->region_id,
             'grado'                  => $request->grado,

@@ -11,7 +11,6 @@ import Menu from '@/Pages/Menu/Inicio.vue'
 import Usuario from '@/Pages/Usuario/Inicio.vue'
 import Area from '@/Pages/Area/Inicio.vue'
 import InstitucionEducativa from '@/Pages/InstitucionEducativa/Inicio.vue'
-import TipoUnidadAprendizaje from '@/Pages/TipoUnidadAprendizaje/Inicio.vue'
 import UnidadAprendizaje from '@/Pages/UnidadAprendizaje/Inicio.vue'
 import PlantillaUnidadAprendizaje from '@/Pages/PlantillaUnidadAprendizaje/Inicio.vue'
 import Profesor from '@/Pages/Profesor/Inicio.vue'
@@ -37,10 +36,7 @@ const routes = [
         path: '/areas-aprendizaje',name: 'Areas', component: Area,
         meta: {layout: LayoutDefault}
     },
-    {
-        path: '/tipo-unidad-aprendizaje',name: 'Tipo Unidad Aprendizaje', component: TipoUnidadAprendizaje,
-        meta: {layout: LayoutDefault}
-    },
+
     {
         path: '/institucion-educativa',name: 'Institucion Educativa', component: InstitucionEducativa,
         meta: {layout: LayoutDefault}

@@ -17,9 +17,18 @@ class UserSeeder extends Seeder
     {
         $superusuario = User::firstOrCreate([
             'name' => 'admin',
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('admin12345'),
             'role_id' => Rol::where('nombre', 'SUPER USUARIO')->value('id'),
         ]);
+
+
+        $docente = User::firstOrCreate([
+            'name' => 'cristian',
+            'password' => Hash::make('45532962'),
+            'role_id' => Rol::where('nombre', 'PROFESOR')->value('id'),
+        ]);
+
+
 
     }
 }

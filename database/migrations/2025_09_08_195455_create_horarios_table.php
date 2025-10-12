@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('horarios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('area_unidad_aprendizaje_id')->constrained('area_unidads')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('dia');
-            $table->time('hora_inicio');
-            $table->time('hora_fin');
+            $table->foreignId('unidad_aprendizaje_id')->constrained('unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
+            $table->enum('dia', ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']);
+            $table->foreignId('area_id')->constrained('areas')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

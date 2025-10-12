@@ -69,6 +69,9 @@ const {errors, loginUsuario } = useAutenticacion();
                             <div class="mb-3">
                                 <button class="btn btn-primary d-block w-100 mt-3" type="submit">Iniciar Sesión</button>
                             </div>
+                            <div class="mb-3">
+                                <a class="fs--1" href="#">¿No tienes una cuenta? Regístrate</a>
+                            </div>
                            
                         </form>
 

@@ -35,7 +35,7 @@ const form = ref({
   grado: '',
   tiene_educacion_fisica: false,
   tipo_id: 1,
-  nombre_unidad: '',
+  titulo: '',
   numero_unidad: 1,
   situacion_significativa: '',
   errors: []
@@ -43,7 +43,7 @@ const form = ref({
 
 const formProposito = ref({
   id: '',
-  nombre_unidad: '',
+  titulo: '',
   nro_unidad: '',
   descripcion: '',
   plantilla_unidad_id: '',
@@ -55,7 +55,7 @@ const formProposito = ref({
   capacidades: '',
   estandares: '',
   evidencia: '',
-  instrumento_evaluacion: '',
+  instrumento_evaluacion: 'LISTA DE COTEJO',
   desempeños: [],
   criterio_evaluacions: [],
   actividades: [],
@@ -115,7 +115,7 @@ const limpiarActividad = () => {
 const limpiarProposito = () => {
   formProposito.value = {
     id: '',
-    nombre_unidad: '',
+    titulo: '',
     nro_unidad: '',
     descripcion: '',
     plantilla_unidad_id: '',
@@ -127,7 +127,7 @@ const limpiarProposito = () => {
     capacidades: '',
     estandares: '',
     evidencia: '',
-    instrumento_evaluacion: '',
+    instrumento_evaluacion: 'LISTA DE COTEJO',
     desempeños: [],
     criterio_evaluacions: [],
     actividades: [],
@@ -144,7 +144,7 @@ const limpiar = () => {
     grado: '',
     tiene_educacion_fisica: false,
     tipo_id: 1,
-    nombre_unidad: '',
+    titulo: '',
     numero_unidad: 1,
     situacion_significativa: '',
     errors: []
@@ -159,7 +159,7 @@ const obtenerDatos = async (id) => {
     form.value.region_id                = registro.value.region_id ?? ''
     formProposito.value.region_id       = registro.value.region_id ?? ''
     formProposito.value.region          = registro.value.region.nombre ?? ''
-    formProposito.value.nombre_unidad   = registro.value.nombre_unidad
+    formProposito.value.titulo   = registro.value.titulo
     formProposito.value.grado           = registro.value.grado
     formProposito.value.region_id       = registro.value.region_id
     formProposito.value.nro_unidad       = registro.value.numero_unidad
@@ -167,7 +167,7 @@ const obtenerDatos = async (id) => {
     form.value.grado                    = registro.value.grado ?? ''
     form.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica==1?true:false
     form.value.tipo_id                  = registro.value.tipo_id ?? ''
-    form.value.nombre_unidad            = registro.value.nombre_unidad ?? ''
+    form.value.titulo            = registro.value.titulo ?? ''
     form.value.numero_unidad            = registro.value.numero_unidad ?? ''
     form.value.situacion_significativa  = registro.value.situacion_significativa ?? ''
     await listaPropositos(id)
@@ -204,7 +204,7 @@ const actividades=async(id)=>{
   formActividad.value.plantilla_unidad_id = id;
   await obtenerDatos(id)
   openModal('#modalActividad')
-  document.getElementById("modalActividadLabel").innerHTML = 'Actividades de la unidad de aprendizaje : '+formProposito.value.nombre_unidad+' N° '+formProposito.value.nro_unidad;        
+  document.getElementById("modalActividadLabel").innerHTML = 'Actividades de la unidad de aprendizaje : '+formProposito.value.titulo+' N° '+formProposito.value.nro_unidad;        
 }
 const verPropositos=async(id)=>{
   limpiarProposito()
@@ -400,7 +400,7 @@ onMounted(() => {
 
                     <tr v-else v-for="(ua, index) in registros.data" :key="ua.id">
                       <td>{{ ua.numero_unidad }}</td>
-                      <td class="truncate-1" :title="ua.nombre_unidad">{{ ua.nombre_unidad }}</td>
+                      <td class="truncate-1" :title="ua.titulo">{{ ua.titulo }}</td>
                       <td>{{ ua.region.nombre }}</td>
                       <td>{{ ua.tipo.nombre }}</td>
                       <td>{{ ua.grado }}</td>

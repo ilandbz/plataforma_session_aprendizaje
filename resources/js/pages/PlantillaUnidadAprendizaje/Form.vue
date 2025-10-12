@@ -1,7 +1,7 @@
 <script setup>
-import { toRefs, onMounted } from 'vue';
+import { toRefs, onMounted, computed, reactive } from 'vue';
 import usePlantillaUnidad from '@/Composables/PlantillaUnidad.js'
-import useTipoUnidadAprendizaje from '@/Composables/TipoUnidadAprendizaje.js';
+import useArea from '@/Composables/Area.js'
 import useRegion from '@/Composables/Region.js'
 import useHelper from '@/Helpers';  
 const { hideModal, Toast } = useHelper();
@@ -14,8 +14,8 @@ const {
     errors, respuesta, agregarRegistro, actualizarRegistro
 } = usePlantillaUnidad();
 const {
-    listaTipoUnidadAprendizajes, tipoUnidadAprendizajes
-} = useTipoUnidadAprendizaje();
+    listaAreas, areas
+} = useArea();
 const {
     listaRegiones, regiones
 } = useRegion();
@@ -50,12 +50,97 @@ const crud = {
         }
     }
 }
-const guardar = () => {
-    crud[form.value.estadoCrud]()
+
+const areasFiltradas = computed(() => {
+  if (form.value.tiene_educacion_fisica) {
+    return areas.value
+  } else {
+    return areas.value.filter(a => a.nombre !== "Educación Física")
+  }
+})
+
+
+const prepararYEnviarFormulario = async () => {
+  const formData = new FormData()
+
+  // Agrega los campos normales
+  formData.append('grado', form.value.grado)
+  formData.append('numero_unidad', form.value.numero_unidad)
+  formData.append('region_id', form.value.region_id)
+  formData.append('titulo', form.value.titulo)
+  formData.append('tiene_educacion_fisica', form.value.tiene_educacion_fisica ? 1 : 0)
+
+  // Agrega las sesiones por área
+  for (const areaId in sesionesPorArea) {
+    sesionesPorArea[areaId].forEach((sesion, index) => {
+      formData.append(`sesiones[${areaId}][${index}][numero_orden]`, sesion.numero_orden)
+      formData.append(`sesiones[${areaId}][${index}][archivo]`, sesion.archivo)
+    })
+  }
+
+
+    areasFiltradas.value.forEach(area => {
+        formData.append('areas_filtradas[]', area.id)
+    })
+
+  // Ahora envías usando fetch o axios
+  try {
+    await agregarRegistro(formData)
+
+    if (respuesta.value.ok === 1) {
+      Toast.fire({ icon: 'success', title: response.data.mensaje })
+      hideModal('#modalUnidadAprendizaje')
+      emit('onListar', currentPage.value)
+    }
+    if(errors.value)
+    {
+        form.value.errors = errors.value
+    }
+  } catch (error) {
+    console.error('Error al enviar:', error)
+    Toast.fire({ icon: 'error', title: 'Error al guardar' })
+  }
 }
+
+const sesionesPorArea = reactive({})
+
+// 2. Función para agregar una sesión a un área
+function agregarSesion(areaId) {
+  if (!sesionesPorArea[areaId]) {
+    sesionesPorArea[areaId] = []
+  }
+
+  sesionesPorArea[areaId].push({
+    numero_orden: '',
+    archivo: null
+  })
+}
+
+const guardar = () => {
+  if (form.value.estadoCrud === 'nuevo') {
+    prepararYEnviarFormulario()
+  } else {
+
+  }
+}
+
+
+function handleArchivoUnidadUpload(event) {
+  const file = event.target.files[0]
+  form.value.archivo = file
+}
+
+
+function handleArchivoSesionUpload(event, areaId, index) {
+  const file = event.target.files[0]
+  if (sesionesPorArea[areaId] && sesionesPorArea[areaId][index]) {
+    sesionesPorArea[areaId][index].archivo = file
+  }
+}
+
 onMounted(() => {
+    listaAreas()
     listaRegiones()
-    listaTipoUnidadAprendizajes()
 })
 </script>
 <template>
@@ -107,19 +192,29 @@ onMounted(() => {
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label for="tipo_id" class="form-label">Tipo</label>
-                                    <select class="form-select" v-model="form.tipo_id" :class="{ 'is-invalid': form.errors.tipo_id }">
-                                        <option v-for="t in tipoUnidadAprendizajes" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                                    </select>
-                                    <small class="text-danger" v-for="error in form.errors.tipo_id" :key="error">{{ error }}</small>
 
-                                </div>
                                 <div class="col">
-                                    <label for="nombre_unidad" class="form-label">Titulo</label>
-                                    <input type="text" class="form-control" v-model="form.nombre_unidad"
-                                            :class="{ 'is-invalid': form.errors.nombre_unidad }" placeholder="Nombre de la unidad">
-                                    <small class="text-danger" v-for="error in form.errors.nombre_unidad" :key="error">{{ error }}</small>
+                                    <label for="titulo" class="form-label">Título</label>
+                                    <textarea class="form-control" 
+                                            v-model="form.titulo"
+                                            :class="{ 'is-invalid': form.errors.titulo }" 
+                                            placeholder="Nombre de la unidad"
+                                            rows="3">
+                                    </textarea>
+                                    <small class="text-danger" v-for="error in form.errors.titulo" :key="error">{{ error }}</small>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="archivo" class="form-label">Subir archivo</label>
+                                    <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    id="archivo"
+                                    @change="handleArchivoUnidadUpload" 
+                                    :class="{ 'is-invalid': form.errors.archivo }"
+                                    >
+                                    <small class="text-danger" v-for="error in form.errors.archivo" :key="error">{{ error }}</small>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -132,15 +227,65 @@ onMounted(() => {
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <div class="mb-3">
-                                <label for="situacion_significativa" class="form-label">Situación Significativa</label>
-                                <textarea class="form-control" rows="7" v-model="form.situacion_significativa"
-                                            :class="{ 'is-invalid': form.errors.situacion_significativa }"
-                                            placeholder="Contexto/situación significativa"></textarea>
-                                <small class="text-danger" v-for="error in form.errors.situacion_significativa" :key="error">{{ error }}</small>
+                        <div v-for="area in areasFiltradas" :key="area.id" class="mb-3">
+                        <a 
+                            class="btn btn-falcon-default mt-2" 
+                            :data-bs-toggle="'collapse'" 
+                            :href="'#collapse-' + area.id" 
+                            role="button" 
+                            aria-expanded="false" 
+                            :aria-controls="'collapse-' + area.id">
+                            {{ area.nombre }}
+                        </a>
+                        <div class="collapse mt-2" :id="'collapse-' + area.id">
+                            <div class="border p-3 rounded">
+                            <h6>Agregar sesiones para {{ area.nombre }}</h6>
+
+                            <div 
+                                v-for="(sesion, index) in sesionesPorArea[area.id] || []" 
+                                :key="index" 
+                                class="mb-3 border rounded p-2"
+                            >
+                                <div class="mb-2">
+                                <label class="form-label">N.º de orden</label>
+                                <input 
+                                    type="number" 
+                                    class="form-control" 
+                                    v-model="sesion.numero_orden" 
+                                    placeholder="Ej: 1" 
+                                    min="1"
+                                >
+                                </div>
+
+                                <div class="mb-2">
+                                <label class="form-label">Archivo de sesión</label>
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    @change="event => handleArchivoSesionUpload(event, area.id, index)"
+                                >
+                                </div>
+                            </div>
+
+                            <button 
+                                class="btn btn-sm btn-success" 
+                                @click="() => agregarSesion(area.id)">
+                                ➕ Agregar sesión
+                            </button>
                             </div>
                         </div>
-                    </div>                   
+                        <small 
+                            class="text-danger" 
+                            v-if="form.errors['sesiones.' + area.id]"
+                            >
+                            {{ form.errors['sesiones.' + area.id][0] }}
+                        </small>
+                        </div>
+
+
+                    </div>
+                    </div>
+              
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

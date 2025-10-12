@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('proposito_aprendizajes', function (Blueprint $table) {
+        Schema::create('proposito_aprendizajes', function (Blueprint $table) { // se va llamar areas
             $table->id();
             $table->text('descripcion'); //Hoy vamos a reconocer en que afectan  los fenómenos naturales a las personas de la comunidad
             $table->foreignId('plantilla_unidad_id')->constrained('plantilla_unidads')->onDelete('cascade')->onUpdate('cascade');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('competencia_capacidades');
             $table->text('estandares');
             $table->text('evidencia');
-            $table->text('instrumento_evaluacion');
+            //$table->text('instrumento_evaluacion');   // siempre sera lista cotejo
             $table->timestamps();
         });
     }

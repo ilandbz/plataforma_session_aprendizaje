@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('region_id')->constrained('regions')->onDelete('cascade')->onUpdate('cascade');
             $table->string('grado');
             $table->integer('tiene_educacion_fisica')->default(1);
-            $table->foreignId('tipo_id')->constrained('tipo_unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('nombre_unidad');
+            // $table->foreignId('tipo_id')->constrained('tipo_unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('titulo');
             $table->integer('numero_unidad');
             $table->text('situacion_significativa');
             $table->timestamps();

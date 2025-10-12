@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('unidad_aprendizajes', function (Blueprint $table) {
             $table->id();
             $table->integer('numero_unidad');
-            $table->string('nombre_unidad');
-            $table->foreignId('tipo_id')->constrained('tipo_unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('institucion_educativa_id')->constrained('institucion_educativas')->onDelete('cascade')->onUpdate('cascade');
+            //$table->string('nombre_unidad');
+            //$table->foreignId('tipo_id')->constrained('tipo_unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('institucion_educativa_id')->constrained('institucion_educativas')->onDelete('cascade')->onUpdate('cascade'); //el docente registrara autotaticamente
             $table->string('director');
             $table->string('sub_director');
             $table->text('descripcion_unidad')->nullable();

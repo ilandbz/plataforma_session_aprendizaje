@@ -53,14 +53,7 @@ class MenuSeeder extends Seeder
                 'icono' => 'fa fa-book',
                 'grupo_id'  => GrupoMenu::where('titulo', 'Academico')->value('id'),
                 'orden' => 1,
-            ],         
-            [
-                'nombre' => 'Tipo Unidad',
-                'slug' => 'tipo-unidad-aprendizaje',
-                'icono' => 'fas fa-layer-group',
-                'grupo_id'  => GrupoMenu::where('titulo', 'Academico')->value('id'),
-                'orden' => 1,
-            ],                  
+            ],                       
             [
                 'nombre' => 'Institucion Educativa',
                 'slug' => 'institucion-educativa',

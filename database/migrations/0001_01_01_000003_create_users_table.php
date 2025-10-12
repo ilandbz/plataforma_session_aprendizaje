@@ -17,16 +17,11 @@ return new class extends Migration
             $table->string('dni')->default('00000000');
             $table->string('password');
             $table->foreignId('role_id')->constrained('rols')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('region_id')->nullable()->constrained('regions')->onDelete('cascade')->onUpdate('cascade');
             $table->integer('es_activo')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });
-
-        // Schema::create('password_reset_tokens', function (Blueprint $table) {
-        //     $table->string('email')->primary();
-        //     $table->string('token');
-        //     $table->timestamp('created_at')->nullable();
-        // });
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();

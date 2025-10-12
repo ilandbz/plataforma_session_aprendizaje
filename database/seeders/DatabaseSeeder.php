@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             AreaSeeder::class,
             RolSeeder::class,
             InstitucionEducativaSeeder::class,
-            TipoUnidadAprendizajeSeeder::class,
             UserSeeder::class,
             GrupoMenuSeeder::class,
             MenuSeeder::class,

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_unidad_aprendizajes', function (Blueprint $table) {
+        Schema::create('lista_alumnos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre')->unique();
+            $table->foreignId('unidad_aprendizaje_id')->constrained('unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('nombre_alumno');
+            $table->string('apellido_alumno');
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_unidad_aprendizajes');
+        Schema::dropIfExists('lista_alumnos');
     }
 };

@@ -1,7 +1,6 @@
 <script setup>
 import { toRefs, onMounted } from 'vue';
 import useUnidadAprendizaje from '@/Composables/UnidadAprendizaje.js';
-import useTipoUnidadAprendizaje from '@/Composables/TipoUnidadAprendizaje.js';
 import useInstitucionEducativa from '@/Composables/InstitucionEducativa.js';
 import useHelper from '@/Helpers';  
 const { hideModal, Toast } = useHelper();
@@ -13,9 +12,6 @@ const { form, currentPage } = toRefs(props)
 const {
     errors, respuesta, agregarUnidad, actualizarUnidad
 } = useUnidadAprendizaje();
-const {
-    listaTipoUnidadAprendizajes, tipoUnidadAprendizajes
-} = useTipoUnidadAprendizaje();
 const {
     listaInstituciones, instituciones, obtenerInstitucion, institucion
 } = useInstitucionEducativa();
@@ -68,7 +64,7 @@ const guardar = () => {
     crud[form.value.estadoCrud]()
 }
 onMounted(() => {
-listaTipoUnidadAprendizajes()
+
 listaInstituciones()
 })
 </script>
@@ -128,15 +124,7 @@ listaInstituciones()
                                         <small class="text-danger" v-for="error in form.errors.nombre_unidad" :key="error">{{ error }}</small>
                                     </div>
 
-                                    <!-- Tipo (select) -->
-                                    <div class="mb-3">
-                                        <label for="tipo_id" class="form-label">Tipo</label>
-                                        <select class="form-select" v-model="form.tipo_id" :class="{ 'is-invalid': form.errors.tipo_id }">
-                                            <option value="" hidden>-- Seleccione --</option>
-                                            <option v-for="t in tipoUnidadAprendizajes" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                                        </select>
-                                        <small class="text-danger" v-for="error in form.errors.tipo_id" :key="error">{{ error }}</small>
-                                    </div>
+
 
                                     <!-- Institución Educativa (select) -->
                                     <div class="mb-3">
@@ -212,14 +200,7 @@ listaInstituciones()
                                     <small class="text-danger" v-for="error in form.errors.descripcion_unidad" :key="error">{{ error }}</small>
                                     </div>
 
-                                    <!-- Situación Significativa -->
-                                    <div class="mb-3">
-                                    <label for="situacion_significativa" class="form-label">Situación Significativa</label>
-                                    <textarea class="form-control" rows="3" v-model="form.situacion_significativa"
-                                                :class="{ 'is-invalid': form.errors.situacion_significativa }"
-                                                placeholder="Contexto/situación significativa"></textarea>
-                                    <small class="text-danger" v-for="error in form.errors.situacion_significativa" :key="error">{{ error }}</small>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
