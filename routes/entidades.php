@@ -97,14 +97,6 @@ Route::group(['prefix' => 'area', 'middleware' => 'auth'], function () {
     Route::get('listar', [AreaController::class, 'listar']);
 });
 
-Route::group(['prefix' => 'tipo-unidad-aprendizaje', 'middleware' => 'auth'], function () {
-    Route::get('todos', [TipoUnidadAprendizajeController::class, 'all']);
-    Route::get('mostrar', [TipoUnidadAprendizajeController::class, 'show']);
-    Route::post('actualizar', [TipoUnidadAprendizajeController::class, 'update']);
-    Route::post('eliminar', [TipoUnidadAprendizajeController::class, 'destroy']);
-    Route::post('guardar', [TipoUnidadAprendizajeController::class, 'store']);
-    Route::get('listar', [TipoUnidadAprendizajeController::class, 'listar']);
-});
 
 Route::group(['prefix' => 'institucion-educativa', 'middleware' => 'auth'], function () {
     Route::get('todos', [InstitucionEducativaController::class, 'all']);
