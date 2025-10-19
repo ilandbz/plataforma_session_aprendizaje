@@ -44,7 +44,9 @@ class StorePlantillaUnidadRequest extends FormRequest
             'tiene_educacion_fisica'    => 'required',
             'numero_unidad'             => 'required|integer',
             'titulo'                    => 'required|string|max:255',
-            'archivo'                   => 'required|file|max:5120|mimes:pdf,doc,docx,txt',
+            'situacion_significativa'   => 'required|string',
+            'archivo'                   => 'required|file|max:10240|mimes:pdf',
+
 
             // Validación de sesiones
             'sesiones'                      => 'nullable|array',
@@ -53,8 +55,8 @@ class StorePlantillaUnidadRequest extends FormRequest
             'sesiones.*.*.archivo'          => 'required|file|max:5120|mimes:pdf,doc,docx,txt',
 
             // Validación de áreas filtradas
-            'areas_filtradas'               => 'required|array',
-            'areas_filtradas.*'            => 'integer|exists:areas,id',
+            // 'areas_filtradas'               => 'required|array',
+            // 'areas_filtradas.*'            => 'integer|exists:areas,id',
         ];
     }
 
@@ -65,7 +67,12 @@ class StorePlantillaUnidadRequest extends FormRequest
             'max' => 'Ingrese Máximo :max caracteres',
             'string' => 'Ingrese caracteres alfanuméricos',
             'number' => 'Ingrese solo numeros',
-            'unique' => 'El valor ya existe'
+            'unique' => 'El valor ya existe',
+            // Mensajes personalizados para "archivo"
+            'archivo.required' => 'Debe seleccionar un archivo.',
+            'archivo.file' => 'El elemento subido debe ser un archivo válido.',
+            'archivo.mimes' => 'El archivo debe ser de tipo: pdf, doc, docx o txt.',
+            'archivo.max' => 'El archivo no debe superar los 10 MB.',
         ];
     }
 

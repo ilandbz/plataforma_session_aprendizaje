@@ -66,6 +66,13 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ], 
+        'unidadAprendizaje' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/unidades_aprendizaje'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ], 
     ],
 
     /*

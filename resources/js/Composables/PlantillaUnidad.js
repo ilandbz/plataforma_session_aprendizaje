@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import { getConfigHeader, getdataParamsPagination } from '@/Helpers'
 export default function usePlantillaUnidad() {
     const registros = ref([])
+    const sessiones = ref([])
     const errors = ref('')
     const registro = ref({})
+    const registroCompleto = ref({})
     const respuesta = ref([])
     
     const obtenerRegistro = async(id) => {
@@ -57,8 +59,40 @@ export default function usePlantillaUnidad() {
             respuesta.value = respond.data
         }
     }
+    const obtenerRegistroConAreas = async(id)=>{
+        let respuesta = await axios.get('plantilla-unidad-aprendizaje/areas-sessiones?id='+id,getConfigHeader())
+        registroCompleto.value = respuesta.data        
+    }
+    const cargarSessiones = async(area_id, plantilla_unidad_id)=>{
+        let respuesta = await axios.get('plantilla-unidad-aprendizaje/cargar-sessiones?plantilla_unidad_id='+plantilla_unidad_id+'&area_id='+area_id,getConfigHeader())
+        sessiones.value = respuesta.data.sessiones        
+    }
+    const guardarSession = async(data) => {
+        errors.value = ''
+        try {
+            let respond = await axios.post('plantilla-unidad-aprendizaje/guardar-session',data,getConfigHeader())
+            errors.value =''
+            if(respond.data.ok==1){
+                respuesta.value=respond.data
+            }
+
+        } catch (error) {
+            errors.value=""
+            if(error.response.status === 422) {
+                errors.value = error.response.data.errors
+            }
+        }
+    }    
+    const eliminarSession = async(id) => {
+        const respond = await axios.post('plantilla-unidad-aprendizaje/eliminar-sesion', {id:id},getConfigHeader())
+        if(respond.data.ok==1)
+        {
+            respuesta.value = respond.data
+        }
+    }
     return {
         errors, registros, listaRegistros, registro, obtenerRegistro, obtenerRegistros, 
-        agregarRegistro, actualizarRegistro, eliminarRegistro, respuesta
+        agregarRegistro, actualizarRegistro, eliminarRegistro, respuesta, guardarSession,
+        obtenerRegistroConAreas, registroCompleto, cargarSessiones, sessiones, eliminarSession
     }
 }

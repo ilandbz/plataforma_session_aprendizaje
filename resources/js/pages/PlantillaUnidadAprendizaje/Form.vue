@@ -1,7 +1,6 @@
 <script setup>
-import { toRefs, onMounted, computed, reactive } from 'vue';
+import { toRefs, onMounted, computed, ref } from 'vue';
 import usePlantillaUnidad from '@/Composables/PlantillaUnidad.js'
-import useArea from '@/Composables/Area.js'
 import useRegion from '@/Composables/Region.js'
 import useHelper from '@/Helpers';  
 const { hideModal, Toast } = useHelper();
@@ -13,82 +12,29 @@ const { form, currentPage } = toRefs(props)
 const {
     errors, respuesta, agregarRegistro, actualizarRegistro
 } = usePlantillaUnidad();
-const {
-    listaAreas, areas
-} = useArea();
+
 const {
     listaRegiones, regiones
 } = useRegion();
 const  emit  =defineEmits(['onListar'])
-const crud = {
-    'nuevo': async() => {
-        await agregarRegistro(form.value)
-        form.value.errors = []
-        if(errors.value)
-        {
-            form.value.errors = errors.value
-        }
-        if(respuesta.value.ok==1){
-            form.value.errors = []
-            hideModal('#modalUnidadAprendizaje')
-            Toast.fire({icon:'success', title:respuesta.value.mensaje})
-            emit('onListar', currentPage.value)
-        }
-    },
-    'editar': async() => {
-        await actualizarRegistro(form.value)
-        form.value.errors = []
-        if(errors.value)
-        {
-            form.value.errors = errors.value
-        }
-        if(respuesta.value.ok==1){
-            form.value.errors = []
-            hideModal('#modalUnidadAprendizaje')
-            Toast.fire({icon:'success', title:respuesta.value.mensaje})
-            emit('onListar', currentPage.value)
-        }
-    }
-}
-
-const areasFiltradas = computed(() => {
-  if (form.value.tiene_educacion_fisica) {
-    return areas.value
-  } else {
-    return areas.value.filter(a => a.nombre !== "Educación Física")
-  }
-})
-
-
 const prepararYEnviarFormulario = async () => {
   const formData = new FormData()
-
-  // Agrega los campos normales
+  formData.append('id', form.value.id)
   formData.append('grado', form.value.grado)
   formData.append('numero_unidad', form.value.numero_unidad)
   formData.append('region_id', form.value.region_id)
   formData.append('titulo', form.value.titulo)
+  formData.append('situacion_significativa', form.value.situacion_significativa)
   formData.append('tiene_educacion_fisica', form.value.tiene_educacion_fisica ? 1 : 0)
-
-  // Agrega las sesiones por área
-  for (const areaId in sesionesPorArea) {
-    sesionesPorArea[areaId].forEach((sesion, index) => {
-      formData.append(`sesiones[${areaId}][${index}][numero_orden]`, sesion.numero_orden)
-      formData.append(`sesiones[${areaId}][${index}][archivo]`, sesion.archivo)
-    })
-  }
-
-
-    areasFiltradas.value.forEach(area => {
-        formData.append('areas_filtradas[]', area.id)
-    })
-
-  // Ahora envías usando fetch o axios
+  formData.append('archivo', form.value.archivo ?? '');
   try {
-    await agregarRegistro(formData)
-
+    if (form.value.estadoCrud === 'nuevo') {
+        await agregarRegistro(formData)
+    } else {
+        await actualizarRegistro(formData)
+    }
     if (respuesta.value.ok === 1) {
-      Toast.fire({ icon: 'success', title: response.data.mensaje })
+      Toast.fire({ icon: 'success', title: respuesta.value.mensaje })
       hideModal('#modalUnidadAprendizaje')
       emit('onListar', currentPage.value)
     }
@@ -101,50 +47,28 @@ const prepararYEnviarFormulario = async () => {
     Toast.fire({ icon: 'error', title: 'Error al guardar' })
   }
 }
-
-const sesionesPorArea = reactive({})
-
-// 2. Función para agregar una sesión a un área
-function agregarSesion(areaId) {
-  if (!sesionesPorArea[areaId]) {
-    sesionesPorArea[areaId] = []
-  }
-
-  sesionesPorArea[areaId].push({
-    numero_orden: '',
-    archivo: null
-  })
-}
-
 const guardar = () => {
-  if (form.value.estadoCrud === 'nuevo') {
     prepararYEnviarFormulario()
-  } else {
-
-  }
 }
-
-
+const verCardPdf = ref(false);
+const loading = ref(false);
+const pdfUrl = ref('')
 function handleArchivoUnidadUpload(event) {
   const file = event.target.files[0]
   form.value.archivo = file
 }
-
-
-function handleArchivoSesionUpload(event, areaId, index) {
-  const file = event.target.files[0]
-  if (sesionesPorArea[areaId] && sesionesPorArea[areaId][index]) {
-    sesionesPorArea[areaId][index].archivo = file
-  }
+function verPdf(filename) {
+  loading.value = true
+  verCardPdf.value = true
+  const safeName = encodeURIComponent(filename ?? '')
+  pdfUrl.value = `/storage/unidades_aprendizaje/${form.value.id}/${safeName}`
+  setTimeout(() => (loading.value = false), 300)
 }
-
 onMounted(() => {
-    listaAreas()
     listaRegiones()
 })
 </script>
 <template>
-    <form @submit.prevent="guardar">
     <div class="modal fade" id="modalUnidadAprendizaje" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="modalUnidadAprendizajeLabel" >
         <div class="modal-dialog modal-lg">
@@ -192,7 +116,6 @@ onMounted(() => {
                                 </div>
                             </div>
                             <div class="row mb-3">
-
                                 <div class="col">
                                     <label for="titulo" class="form-label">Título</label>
                                     <textarea class="form-control" 
@@ -206,15 +129,34 @@ onMounted(() => {
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
+                                    <label for="situacion_significativa" class="form-label">Situacion Significativa</label>
+                                    <textarea class="form-control" 
+                                            v-model="form.situacion_significativa"
+                                            :class="{ 'is-invalid': form.errors.situacion_significativa }" 
+                                            placeholder="Nombre de la unidad"
+                                            rows="3">
+                                    </textarea>
+                                    <small class="text-danger" v-for="error in form.errors.situacion_significativa" :key="error">{{ error }}</small>
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-end">
+                                <div class="col">
                                     <label for="archivo" class="form-label">Subir archivo</label>
                                     <input 
-                                    type="file" 
-                                    class="form-control" 
-                                    id="archivo"
-                                    @change="handleArchivoUnidadUpload" 
-                                    :class="{ 'is-invalid': form.errors.archivo }"
+                                        type="file" 
+                                        class="form-control" 
+                                        id="archivo"
+                                        @change="handleArchivoUnidadUpload" 
+                                        accept=".pdf,application/pdf"
+                                        :class="{ 'is-invalid': form.errors.archivo }"
                                     >
                                     <small class="text-danger" v-for="error in form.errors.archivo" :key="error">{{ error }}</small>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end" v-if="form.filename">
+                                    <button class="btn btn-primary btn-sm w-100" @click="verPdf(form.filename)">
+                                        <i class="fas fa-eye"></i> Ver PDF
+                                    </button>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -225,74 +167,30 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <div class="card">
+                    <div class="card border-info" v-if="verCardPdf && form.filename">
                         <div class="card-body">
-                        <div v-for="area in areasFiltradas" :key="area.id" class="mb-3">
-                        <a 
-                            class="btn btn-falcon-default mt-2" 
-                            :data-bs-toggle="'collapse'" 
-                            :href="'#collapse-' + area.id" 
-                            role="button" 
-                            aria-expanded="false" 
-                            :aria-controls="'collapse-' + area.id">
-                            {{ area.nombre }}
-                        </a>
-                        <div class="collapse mt-2" :id="'collapse-' + area.id">
-                            <div class="border p-3 rounded">
-                            <h6>Agregar sesiones para {{ area.nombre }}</h6>
-
-                            <div 
-                                v-for="(sesion, index) in sesionesPorArea[area.id] || []" 
-                                :key="index" 
-                                class="mb-3 border rounded p-2"
-                            >
-                                <div class="mb-2">
-                                <label class="form-label">N.º de orden</label>
-                                <input 
-                                    type="number" 
-                                    class="form-control" 
-                                    v-model="sesion.numero_orden" 
-                                    placeholder="Ej: 1" 
-                                    min="1"
-                                >
-                                </div>
-
-                                <div class="mb-2">
-                                <label class="form-label">Archivo de sesión</label>
-                                <input 
-                                    type="file" 
-                                    class="form-control" 
-                                    @change="event => handleArchivoSesionUpload(event, area.id, index)"
-                                >
-                                </div>
+                            <div v-if="loading" class="d-flex justify-content-center align-items-center vh-50">
+                            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+                                <span class="visually-hidden">Obteniendo Datos...</span>
+                            </div>
                             </div>
 
-                            <button 
-                                class="btn btn-sm btn-success" 
-                                @click="() => agregarSesion(area.id)">
-                                ➕ Agregar sesión
-                            </button>
-                            </div>
+                            <iframe
+                            v-else
+                            :src="pdfUrl"
+                            width="100%"
+                            height="600"
+                            style="border:none;"
+                            ></iframe>
                         </div>
-                        <small 
-                            class="text-danger" 
-                            v-if="form.errors['sesiones.' + area.id]"
-                            >
-                            {{ form.errors['sesiones.' + area.id][0] }}
-                        </small>
-                        </div>
-
-
+                        <div class="card-footer"></div>
                     </div>
-                    </div>
-              
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">{{ (form.estadoCrud=='nuevo') ? 'Guardar' : 'Actualizar' }}</button>
+                    <button type="button" class="btn btn-primary" @click.prevent="guardar">Guardar</button>
                 </div>
             </div>
         </div>
     </div>
-    </form>
 </template>

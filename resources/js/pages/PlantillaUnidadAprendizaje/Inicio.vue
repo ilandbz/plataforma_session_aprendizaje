@@ -2,26 +2,25 @@
 import { ref, onMounted, toRefs } from 'vue'
 import useHelper from '@/Helpers'
 import usePlantillaUnidad from '@/Composables/PlantillaUnidad.js'
-import usePropositoAprendizaje from '@/Composables/PropositoAprendizaje.js'
 import UnidadAprendizajeForm from './Form.vue'
-import PropositoForm from './PropositoForm.vue'
-import ActividadForm from './ActividadForm.vue'
+import useArea from '@/Composables/Area.js'
+// import PropositoForm from './PropositoForm.vue'
+import SessionForm from './SessionForm.vue'
+
 const { openModal, Toast, Swal } = useHelper()
 
 const props = defineProps({
     usuario: Object
 });
-
+const {
+    listaAreas, areas
+} = useArea();
 const { usuario } = toRefs(props);
 
 const {
   registros, errors, registro, respuesta,
-  obtenerRegistros, obtenerRegistro, eliminarRegistro
+  obtenerRegistros, obtenerRegistro, eliminarRegistro, obtenerRegistroConAreas, registroCompleto
 } = usePlantillaUnidad()
-
-const {
-  listaPropositos, propositos
-} = usePropositoAprendizaje()
 
 const dato = ref({
   page: '',
@@ -34,32 +33,16 @@ const form = ref({
   region_id: 1,
   grado: '',
   tiene_educacion_fisica: false,
-  tipo_id: 1,
   titulo: '',
   numero_unidad: 1,
   situacion_significativa: '',
+  filename:'',
   errors: []
 })
 
-const formProposito = ref({
-  id: '',
-  titulo: '',
-  nro_unidad: '',
-  descripcion: '',
+const formSessiones = ref({
   plantilla_unidad_id: '',
-  area_id: '',
-  grado: '',
-  region_id: '',
-  region: '',
-  competencia_capacidades: '',
-  capacidades: '',
-  estandares: '',
-  evidencia: '',
-  instrumento_evaluacion: 'LISTA DE COTEJO',
-  desempeños: [],
-  criterio_evaluacions: [],
-  actividades: [],
-  tiene_educacion_fisica: false,
+  areas: [],
   errors: []
 })
 
@@ -112,29 +95,11 @@ const limpiarActividad = () => {
 
 }
 
-const limpiarProposito = () => {
-  formProposito.value = {
-    id: '',
-    titulo: '',
-    nro_unidad: '',
-    descripcion: '',
-    plantilla_unidad_id: '',
-    area_id: '',
-    grado: '',
-    region_id: '',
-    region: '',
-    competencia_capacidades: '',
-    capacidades: '',
-    estandares: '',
-    evidencia: '',
-    instrumento_evaluacion: 'LISTA DE COTEJO',
-    desempeños: [],
-    criterio_evaluacions: [],
-    actividades: [],
-    tiene_educacion_fisica: false,
+const limpiarFormSessiones = () => {
+  formSessiones.value = {
+    areas: [],
     errors: []
   }
-
 }
 
 const limpiar = () => {
@@ -143,10 +108,10 @@ const limpiar = () => {
     region_id: 1,
     grado: '',
     tiene_educacion_fisica: false,
-    tipo_id: 1,
     titulo: '',
     numero_unidad: 1,
     situacion_significativa: '',
+    filename:'',
     errors: []
   }
   errors.value = []
@@ -157,62 +122,91 @@ const obtenerDatos = async (id) => {
   if (registro.value) {
     form.value.id                       = registro.value.id
     form.value.region_id                = registro.value.region_id ?? ''
-    formProposito.value.region_id       = registro.value.region_id ?? ''
-    formProposito.value.region          = registro.value.region.nombre ?? ''
-    formProposito.value.titulo   = registro.value.titulo
-    formProposito.value.grado           = registro.value.grado
-    formProposito.value.region_id       = registro.value.region_id
-    formProposito.value.nro_unidad       = registro.value.numero_unidad
-    formProposito.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica==1?true:false
     form.value.grado                    = registro.value.grado ?? ''
-    form.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica==1?true:false
-    form.value.tipo_id                  = registro.value.tipo_id ?? ''
-    form.value.titulo            = registro.value.titulo ?? ''
+    form.value.tiene_educacion_fisica   = registro.value.tiene_educacion_fisica
+    form.value.titulo                   = registro.value.titulo ?? ''
     form.value.numero_unidad            = registro.value.numero_unidad ?? ''
     form.value.situacion_significativa  = registro.value.situacion_significativa ?? ''
-    await listaPropositos(id)
+    form.value.filename                 = registro.value.filename ?? ''
   }
-  
 }
 
-const obtenerPropositos = async(id)=>{
-  await listaPropositos(id)
-}
 
 const editar = (id) => {
   limpiar()
   obtenerDatos(id)
   form.value.estadoCrud = 'editar'
-  document.getElementById('modalUnidadAprendizajeLabel').innerHTML = 'Editar unidad de aprendizaje'
+  document.getElementById('modalUnidadAprendizajeLabel').innerHTML = 'Editar Unidad de aprendizaje'
   openModal('#modalUnidadAprendizaje')
 }
 
 const nuevo = () => {
   limpiar()
   form.value.estadoCrud = 'nuevo'
-  document.getElementById('modalUnidadAprendizajeLabel').innerHTML = 'Nueva unidad de aprendizaje'
+  document.getElementById('modalUnidadAprendizajeLabel').innerHTML = 'Nueva Unidad de aprendizaje'
   openModal('#modalUnidadAprendizaje')
 }
-const refrescarActividades=async()=>{
-  limpiarActividad()
-  let id = form.value.id
-  formProposito.value.plantilla_unidad_id = id;
-  await obtenerDatos(id)
-}
-const actividades=async(id)=>{
-  limpiarActividad()
-  formActividad.value.plantilla_unidad_id = id;
-  await obtenerDatos(id)
-  openModal('#modalActividad')
-  document.getElementById("modalActividadLabel").innerHTML = 'Actividades de la unidad de aprendizaje : '+formProposito.value.titulo+' N° '+formProposito.value.nro_unidad;        
-}
-const verPropositos=async(id)=>{
-  limpiarProposito()
-  formProposito.value.plantilla_unidad_id = id;
-  await obtenerDatos(id)
-  openModal('#modalProposito')
-  document.getElementById("modalPropositoLabel").innerHTML = 'Propositos de la unidad de aprendizaje';        
-}
+
+
+const sessiones = async (id) => {
+  limpiarFormSessiones();
+  await obtenerRegistroConAreas(id);
+  formSessiones.value.plantilla_unidad_id = id;
+  
+  if (registroCompleto.value.areas.length === 0) {
+    // No hay áreas registradas, crear estructura inicial
+    let registros = areas.value.map((element) => ({
+      area_id: element.id,
+      plantilla_unidad_id: id,
+      nombre: element.nombre,
+      sessiones: []
+    }));
+    
+    formSessiones.value.areas = form.value.tiene_educacion_fisica
+      ? registros
+      : registros.filter(a => a.nombre !== "Educación Física");
+  } else {
+    // Hay al menos 1 área registrada, combinar con las áreas faltantes
+    
+    // Normalizar áreas registradas para que tengan la misma estructura
+    const areasRegistradasNormalizadas = registroCompleto.value.areas.map(area => ({
+      area_id: area.pivot.area_id,
+      plantilla_unidad_id: id,
+      nombre: area.nombre,
+      sessiones: area.sessiones || [],
+      id: area.pivot.id // Mantener el ID del pivot si existe
+    }));
+    
+    // Obtener IDs de áreas ya registradas
+    const areasRegistradasIds = areasRegistradasNormalizadas.map(a => a.area_id);
+    
+    // Crear estructura inicial para áreas faltantes
+    const areasFaltantes = areas.value
+      .filter(area => !areasRegistradasIds.includes(area.id))
+      .map(element => ({
+        area_id: element.id,
+        plantilla_unidad_id: id,
+        nombre: element.nombre,
+        sessiones: []
+      }));
+    
+    // Combinar áreas registradas + áreas faltantes
+    const todasLasAreas = [...areasRegistradasNormalizadas, ...areasFaltantes];
+    
+    // Aplicar filtro de Educación Física
+    formSessiones.value.areas = form.value.tiene_educacion_fisica
+      ? todasLasAreas
+      : todasLasAreas.filter(a => a.nombre !== "Educación Física");
+  }
+  
+  openModal('#modalSessiones');
+  document.getElementById("modalSessionesLabel").innerHTML = 
+    'Sessiones de Aprendizaje / UNIDAD : ' + registroCompleto.value.titulo + 
+    ' N° ' + registroCompleto.value.numero_unidad;
+};
+
+
+
 const listarRegistrosPlantillas = async (page = 1) => {
   dato.value.page = page
   await obtenerRegistros(dato.value)
@@ -270,6 +264,7 @@ const cambiarPagina = (pagina) => listarRegistrosPlantillas(pagina)
 
 onMounted(() => {
   listarRegistrosPlantillas()
+  listaAreas()
 })
 </script>
 <style scoped>
@@ -324,7 +319,6 @@ onMounted(() => {
                 />
               </div>
             </div>
-
             <div class="col-md-4 mb-1">
               <nav>
                 <ul class="pagination">
@@ -381,12 +375,9 @@ onMounted(() => {
                       <th>N°</th>
                       <th>Titulo</th>
                       <th>Region</th>
-                      <th>Tipo</th>
                       <th>Grado</th>
                       <th title="Situacion Significativa">Situacion</th>
                       <th title="Educacion Física">Ed. Fisica</th>
-                      <th>Proposito</th>
-                      <th>Actividades</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -402,7 +393,6 @@ onMounted(() => {
                       <td>{{ ua.numero_unidad }}</td>
                       <td class="truncate-1" :title="ua.titulo">{{ ua.titulo }}</td>
                       <td>{{ ua.region.nombre }}</td>
-                      <td>{{ ua.tipo.nombre }}</td>
                       <td>{{ ua.grado }}</td>
                       <td class="truncate-1" :title="ua.situacion_significativa">{{ ua.situacion_significativa }}</td>
                       <td>
@@ -410,23 +400,14 @@ onMounted(() => {
                         <span v-else class="badge bg-danger">No</span>
                       </td>
                       <td>
-                        {{ ua.propositos_count }}
-                      </td>
-                      <td>
-                        {{ ua.actividades_count }}
-                      </td>
-                      <td>
                         <div class="btn-group">
-                          <button class="btn btn-warning btn-xs" title="Editar" @click.prevent="editar(ua.id)">
-                            <i class="fas fa-edit"></i>
-                         </button>
                           <button class="btn btn-danger btn-xs" title="Eliminar" @click.prevent="eliminar(ua.id)">
                             <i class="fas fa-trash"></i>
                           </button>
-                          <button class="btn btn-info btn-xs" title="Propositos" @click.prevent="verPropositos(ua.id)">
-                            <i class="fas fa-flag-checkered"></i>
+                          <button class="btn btn-warning btn-xs" title="Editar" @click.prevent="editar(ua.id)">
+                            <i class="fas fa-edit"></i>
                           </button>
-                          <button v-if="ua.propositos_count>0" class="btn btn-success btn-xs" title="Actividades" @click.prevent="actividades(ua.id)">
+                          <button class="btn btn-success btn-xs" title="Areas" @click.prevent="sessiones(ua.id)">
                             <i class="fas fa-lightbulb"></i>
                           </button>                        
                         </div>
@@ -493,13 +474,6 @@ onMounted(() => {
       @onListar="listarRegistrosPlantillas"
       :currentPage="registros.current_page"
     />
-    <PropositoForm :form="formProposito"
-    @onListar="listarRegistrosPlantillas"
-    @obtenerPropositos="obtenerPropositos"
-    :currentPage="registros.current_page"
-    :propositos="propositos"
-    />
-    <ActividadForm :form="formActividad"
-     :propositos="propositos" @limpiar="refrescarActividades" />
+    <SessionForm :form="formSessiones" />
   </div>
 </template>

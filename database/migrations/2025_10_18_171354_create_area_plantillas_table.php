@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('area_unidads', function (Blueprint $table) {
+        Schema::create('area_plantillas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('area_id')->constrained('areas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('unidad_aprendizaje_id')->constrained('unidad_aprendizajes')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('plantilla_unidad_id')->constrained('plantilla_unidads')->onDelete('cascade')->onUpdate('cascade');
+            $table->unique(['area_id', 'plantilla_unidad_id']);
         });
     }
 
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('area_unidads');
+        Schema::dropIfExists('area_plantillas');
     }
 };

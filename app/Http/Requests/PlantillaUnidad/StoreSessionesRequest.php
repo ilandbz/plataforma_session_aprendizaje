@@ -4,7 +4,7 @@ namespace App\Http\Requests\PlantillaUnidad;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePlantillaUnidadRequest extends FormRequest
+class StoreSessionesRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,16 +21,18 @@ class UpdatePlantillaUnidadRequest extends FormRequest
      *
      * @return array
      */
+
+
+
     public function rules()
     {
         return [
-            'region_id'                 => 'required',
-            'grado'                     => 'required',
-            'tiene_educacion_fisica'    => 'required',
-            'numero_unidad'             => 'required|integer',
+            'area_id'                   => 'required',
+            'plantilla_unidad_id'       => 'required',
+            'genero'                    => 'required',
+            'orden'                     => 'required',
             'titulo'                    => 'required|string|max:255',
-            'situacion_significativa'   => 'required|string',
-            'archivo' => 'nullable|file|max:10240|mimes:pdf,doc,docx',
+            'archivo'                   => 'required|file|max:10240|mimes:pdf',
         ];
     }
 

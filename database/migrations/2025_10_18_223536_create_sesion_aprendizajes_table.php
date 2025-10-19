@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('sesion_aprendizajes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('area_unidad_aprendizaje_id')->constrained('area_unidads')->onDelete('cascade')->onUpdate('cascade');
-            $table->date('fecha');
-            $table->string('titulo_sesion');
+            $table->foreignId('area_plantilla_id')->constrained('area_plantillas')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('orden');
+            $table->string('titulo');
+            $table->char('genero', 1)->default('M');
             $table->timestamps();
         });
     }

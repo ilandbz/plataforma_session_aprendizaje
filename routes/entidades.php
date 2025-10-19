@@ -126,6 +126,10 @@ Route::group(['prefix' => 'plantilla-unidad-aprendizaje', 'middleware' => 'auth'
     Route::post('guardar', [PlantillaUnidadController::class, 'store']);
     Route::get('listar', [PlantillaUnidadController::class, 'listar']);
     Route::post('generar-pdf', [PlantillaUnidadController::class, 'generarPdf']);
+    Route::post('guardar-session', [PlantillaUnidadController::class, 'sessionStore']);
+    Route::get('cargar-sessiones', [PlantillaUnidadController::class, 'cargarSessiones']);
+    Route::get('areas-sessiones', [PlantillaUnidadController::class, 'obtenerAreasConSessiones']);
+    Route::post('eliminar-sesion', [PlantillaUnidadController::class, 'eliminarSession']);
 });
 
 

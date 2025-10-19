@@ -13,31 +13,36 @@ class PlantillaUnidad extends Model
         'grado',
         'tiene_educacion_fisica',
         'tipo_id',
-        'nombre_unidad',
+        'titulo',
         'numero_unidad',
-        'situacion_significativa'
+        'situacion_significativa',
+        'filename'
     ];
+    protected $casts = ['tiene_educacion_fisica' => 'bool'];
     public function region()
     {
         return $this->belongsTo(Region::class);
     }
-    public function tipo()
+    public function areas()
     {
-        return $this->belongsTo(TipoUnidadAprendizaje::class, 'tipo_id');
+        return $this->belongsToMany(
+            Area::class,
+            'area_plantillas',
+            'plantilla_unidad_id',
+            'area_id'
+        )
+        ->using(AreaPlantilla::class)
+        ->withPivot('id');           // si no tienes timestamps, no pongas ->withTimestamps()
     }
-    public function propositos(): HasMany
-    {
-        return $this->hasMany(PropositoAprendizaje::class, 'plantilla_unidad_id');
-    }
-    public function actividades(): HasManyThrough
-    {
+    public function sesiones() {
         return $this->hasManyThrough(
-            ActividadAprendizaje::class,
-            PropositoAprendizaje::class,
-            'plantilla_unidad_id',      
-            'proposito_aprendizaje_id', 
-            'id',                       
-            'id'                        
+            SesionAprendizaje::class,
+            AreaPlantilla::class,   // modelo de la pivot
+            'plantilla_unidad_id',  // FK en pivot -> plantilla
+            'area_plantilla_id',    // FK en sesiones -> pivot
+            'id',                   // PK plantilla
+            'id'                    // PK pivot
         );
     }
+
 }
