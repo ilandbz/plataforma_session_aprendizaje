@@ -1,0 +1,244 @@
+<script setup>
+import { toRefs, onMounted, ref } from 'vue';
+import useUsuario from '@/Composables/Usuario.js';
+import usePersona from '@/Composables/Persona.js';
+import useRol from '@/Composables/Rol.js';
+import useHelper from '@/Helpers';  
+const { hideModal, Toast, slugify } = useHelper();
+const props = defineProps({
+    form: Object,
+    currentPage : Number
+});
+const { form, currentPage } = toRefs(props)
+const {
+    errors, respuesta, agregarUsuario, actualizarUsuario
+} = useUsuario();
+const {
+    persona, obtenerPorDni
+} = usePersona();
+const {
+    listaRoles, roles
+} = useRol();
+const  emit  =defineEmits(['onListar'])
+const crud = {
+    'nuevo': async() => {
+        let formData = new FormData();
+        formData.append('name', form.value.name);
+        formData.append('dni', form.value.dni);
+        formData.append('apepat', form.value.apepat);
+        formData.append('apemat', form.value.apemat);
+        formData.append('primernombre', form.value.primernombre);
+        formData.append('otrosnombres', form.value.otrosnombres);
+        formData.append('celular', form.value.celular);
+        formData.append('email', form.value.email);
+        formData.append('role_id', form.value.role_id);
+        formData.append('foto', file.value);
+        await agregarUsuario(formData)
+        form.value.errors = []
+        if(errors.value)
+        {
+            form.value.errors = errors.value
+        }
+        if(respuesta.value.ok==1){
+            form.value.errors = []
+            hideModal('#modalusuario')
+            Toast.fire({icon:'success', title:respuesta.value.mensaje})
+            emit('onListar', currentPage.value)
+        }
+    },
+    'editar': async() => {
+        let formData = new FormData();
+        formData.append('id', form.value.id);
+        formData.append('name', form.value.name);
+        formData.append('dni', form.value.dni);
+        formData.append('apepat', form.value.apepat);
+        formData.append('apemat', form.value.apemat);
+        formData.append('primernombre', form.value.primernombre);
+        formData.append('otrosnombres', form.value.otrosnombres);
+        formData.append('celular', form.value.celular);
+        formData.append('email', form.value.email);
+        formData.append('role_id', form.value.role_id);
+        formData.append('foto', file.value);
+        await actualizarUsuario(formData)
+        form.value.errors = []
+        if(errors.value)
+        {
+            form.value.errors = errors.value
+        }
+        if(respuesta.value.ok==1){
+            form.value.errors = []
+            hideModal('#modalusuario')
+            Toast.fire({icon:'success', title:respuesta.value.mensaje})
+            emit('onListar', currentPage.value)
+        }
+    }
+}
+const guardar = () => {
+    crud[form.value.estadoCrud]()
+}
+const onlyNumbers=(event)=> {
+    if (!/[0-9]/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+const file = ref(null);
+const cambiarFoto = (e)=>{
+    file.value = e.target.files[0]
+    if (file) {
+        form.value.foto=URL.createObjectURL(file.value);
+    }
+}
+const imagenNoEncontrada = (event)=>{
+    event.target.src = "/storage/fotos/default.png";
+}
+const generarname = ()=>{
+    let name = form.value.primernombre.toUpperCase().substring(0,1)+
+    form.value.apepat.toUpperCase().substring(0,5)+
+    form.value.apemat.toUpperCase().substring(0,3)
+    form.value.name = name
+}
+const buscarPersona= async(dni)=>{
+    await obtenerPorDni(dni)
+    if(persona.value){
+        form.value.apepat = persona.value.ape_pat
+        form.value.apemat = persona.value.ape_mat
+        form.value.primernombre = persona.value.primernombre
+        form.value.otrosnombres = persona.value.otrosnombres
+    }
+}
+onMounted(() => {
+    listaRoles()
+})
+</script>
+<template>
+    <form @submit.prevent="guardar">
+    <div class="modal fade" id="modalusuario" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="modalusuarioLabel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-1" id="modalusuarioLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Datos de Usuario</h6>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">DNI</label>
+                                        <input type="text" class="form-control" v-model="form.dni" :class="{ 'is-invalid': form.errors.dni }"
+                                        maxlength="8"
+                                        placeholder="00000000"
+                                        @keypress="onlyNumbers"
+                                        @change="buscarPersona(form.dni)"
+                                        :readonly="form.estadoCrud=='editar'">
+                                        <small class="text-danger" v-for="error in form.errors.dni" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Apellido Paterno</label>
+                                        <input type="text" class="form-control" v-model="form.apepat" @input="form.apepat = form.apepat.toUpperCase()"
+                                        :class="{ 'is-invalid': form.errors.apepat }" placeholder="Apellido Paterno"
+                                        :readonly="form.estadoCrud=='editar'">
+                                        <small class="text-danger" v-for="error in form.errors.apepat" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Apellido Materno</label>
+                                        <input type="text" class="form-control" v-model="form.apemat"
+                                        @input="form.apemat = form.apemat.toUpperCase()" :class="{ 'is-invalid': form.errors.apemat }" placeholder="Apellido Materno"
+                                        :readonly="form.estadoCrud=='editar'">
+                                        <small class="text-danger" v-for="error in form.errors.apemat" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Primer Nombre</label>
+                                        <input type="text" class="form-control" v-model="form.primernombre"
+                                        @input="form.primernombre = form.primernombre.toUpperCase()" :class="{ 'is-invalid': form.errors.primernombre }" placeholder="Primer Nombre"
+                                        :readonly="form.estadoCrud=='editar'">
+                                        <small class="text-danger" v-for="error in form.errors.primernombre" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Otros Nombres</label>
+                                        <input type="text" class="form-control" v-model="form.otrosnombres"
+                                        @input="form.otrosnombres = form.otrosnombres.toUpperCase()" :class="{ 'is-invalid': form.errors.otrosnombres }" placeholder="Otros Nombres"
+                                        :readonly="form.estadoCrud=='editar'">
+                                        <small class="text-danger" v-for="error in form.errors.otrosnombres" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3" v-if="form.estadoCrud=='nuevo'">
+                                        <label for="name" class="form-label">Rol</label>
+                                        <select v-model="form.role_id" class="form-control"
+                                                :class="{ 'is-invalid': form.errors.role_id }">
+                                            <option value="" hidden>--Seleccione--</option>
+                                            <option 
+                                                v-for="role in roles.filter(r => r.nombre !== 'DOCENTE')" 
+                                                :key="role.id" 
+                                                :value="role.id" 
+                                                :title="role.nombre"
+                                            >
+                                                {{ role.nombre }}
+                                            </option>
+                                        </select>
+                                        <small class="text-danger" v-for="error in form.errors.role_id" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Celular</label>
+                                        <input type="text" class="form-control" v-model="form.celular" :class="{ 'is-invalid': form.errors.celular }"
+                                        maxlength="9"
+                                        placeholder="000000000"
+                                        @keypress="onlyNumbers"
+                                        >
+                                        <small class="text-danger" v-for="error in form.errors.celular" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" v-model="form.email" :class="{ 'is-invalid': form.errors.email }"
+                                        placeholder="a@gmail.com"
+                                        >
+                                        <small class="text-danger" v-for="error in form.errors.email" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">name</label>
+                                        <input type="text" class="form-control" v-model="form.name" :class="{ 'is-invalid': form.errors.name }"
+                                        placeholder="User Name"
+                                        @focus="generarname()">
+                                        <small class="text-danger" v-for="error in form.errors.name" :key="error">{{ error
+                                                }}</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="foto" class="form-label">Foto</label>
+                                        <input class="form-control" type="file" accept="image/*" @change="cambiarFoto">
+                                        <div class="card">
+                                            <img id="inputImagen" :src="form.foto" class="img-fluid img-thumbnail" @error="imagenNoEncontrada">
+                                        </div>
+                                        <small class="text-danger" v-for="error in form.errors.foto" :key="error">{{ error }}<br></small>
+                                    </div>     
+ 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">{{ (form.estadoCrud=='nuevo') ? 'Guardar' : 'Actualizar' }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</template>
