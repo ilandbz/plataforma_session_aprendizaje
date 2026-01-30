@@ -26,7 +26,6 @@ class StoreUnidadAprendizajeRequest extends FormRequest
         return [
             'numero_unidad'     => 'required',
             'nombre_unidad'     => 'required',
-            'tipo_id'     => 'required',
             'institucion_educativa_id'     => 'required',
             'director'     => 'required',
             'sub_director'     => 'required',
@@ -35,7 +34,6 @@ class StoreUnidadAprendizajeRequest extends FormRequest
             'grado'     => 'required',
             'seccion'     => 'required',
             'fecha_inicio'     => 'required',
-            'situacion_significativa'     => 'required',
             'fecha_fin'     => 'required',
         ];
     }
@@ -50,5 +48,4 @@ class StoreUnidadAprendizajeRequest extends FormRequest
             'unique' => 'El valor ya existe'
         ];
     }
-
 }
